@@ -14,22 +14,22 @@ export class Catalog extends Component<IProduct[]> {
     set items(value: IProduct[]) {
         this._cards = value.map((item) => {
             const card = new Card(cloneTemplate('#card-catalog'));
+            
+            // Устанавливаем свойства карточки
             card.title = item.title;
             card.price = item.price;
             card.category = item.category;
             card.image = item.image;
             card.id = item.id;
+            
+            // Устанавливаем обработчики событий
+            card.onClick = () => {
+                this.onCardClick?.(item.id);
+            };
 
-            const element = card.render();
-            element.addEventListener('click', () => {
-                const event = new CustomEvent('card:click', { 
-                    detail: { productId: item.id } 
-                });
-                this.container.dispatchEvent(event);
-            });
-
-            return element;
+            return card.render();
         });
+        
         this.render();
     }
 
@@ -40,4 +40,6 @@ export class Catalog extends Component<IProduct[]> {
         });
         return this.container;
     }
+
+    onCardClick?: (productId: string) => void;
 }

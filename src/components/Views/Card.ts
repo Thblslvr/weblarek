@@ -1,7 +1,7 @@
-import { Component } from '../base/Component';
-import { IProduct } from '../../types';
-import { CDN_URL, categoryMap } from '../../utils/constants';
-import { ensureElement } from '../../utils/utils';
+import { Component } from "../base/Component";
+import { IProduct } from "../../types";
+import { CDN_URL, categoryMap } from "../../utils/constants";
+import { ensureElement } from "../../utils/utils";
 
 export class Card extends Component<IProduct> {
     protected _title: HTMLElement;
@@ -19,25 +19,38 @@ export class Card extends Component<IProduct> {
         this._category = ensureElement<HTMLElement>('.card__category', container);
         this._image = ensureElement<HTMLImageElement>('.card__image', container);
         
+        // Обработчик клика на карточку
+        this.container.addEventListener('click', () => {
+            this.onClick?.();
+        });
+
         // Элементы, которые могут отсутствовать в некоторых карточках
         try {
             this._button = ensureElement<HTMLButtonElement>('.card__button', container);
+            
+            // Обработчик клика на кнопку
+            if (this._button) {
+                this._button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    this.onButtonClick?.();
+                });
+            }
         } catch {
-            this._button = null; // Кнопка может отсутствовать
+            this._button = null;
         }
         
         try {
             this._description = ensureElement<HTMLElement>('.card__text', container);
         } catch {
-            this._description = null; // Описание может отсутствовать
+            this._description = null;
         }
     }
 
-    // Добавляем публичный метод для получения кнопки
-    get button(): HTMLButtonElement | null {
-        return this._button;
-    }
+    // Обработчики событий
+    onClick?: () => void;
+    onButtonClick?: () => void;
 
+    // Сеттеры для свойств карточки
     set title(value: string) {
         this.setText(this._title, value);
     }

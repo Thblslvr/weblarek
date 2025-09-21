@@ -1,22 +1,17 @@
-import { Component } from '../base/Component';
+import { Form } from './Form';
 import { ensureElement } from '../../utils/utils';
 import { IOrderForm } from '../../types';
 
-export class ContactsForm extends Component<IOrderForm> {
+export class ContactsForm extends Form<IOrderForm> {
     protected _emailInput: HTMLInputElement;
     protected _phoneInput: HTMLInputElement;
-    protected _submitButton: HTMLButtonElement;
-    protected _errors: HTMLElement;
 
     constructor(container: HTMLElement) {
         super(container);
 
         this._emailInput = ensureElement<HTMLInputElement>('input[name="email"]', container);
         this._phoneInput = ensureElement<HTMLInputElement>('input[name="phone"]', container);
-        this._submitButton = ensureElement<HTMLButtonElement>('button[type="submit"]', container);
-        this._errors = ensureElement<HTMLElement>('.form__errors', container);
 
-        // Обработчики событий
         this._emailInput.addEventListener('input', () => this.validateForm());
         this._phoneInput.addEventListener('input', () => this.validateForm());
     }
@@ -25,17 +20,22 @@ export class ContactsForm extends Component<IOrderForm> {
         const hasEmail = this._emailInput.value.trim() !== '';
         const hasPhone = this._phoneInput.value.trim() !== '';
         
-        this.setDisabled(this._submitButton, !hasEmail || !hasPhone);
+        this.submitButtonDisabled = !hasEmail || !hasPhone;
         
         if (!hasEmail && !hasPhone) {
-            this.setText(this._errors, 'Заполните контактные данные');
+            this.errors = 'Заполните контактные данные';
         } else if (!hasEmail) {
-            this.setText(this._errors, 'Укажите email');
+            this.errors = 'Укажите email';
         } else if (!hasPhone) {
-            this.setText(this._errors, 'Укажите телефон');
+            this.errors = 'Укажите телефон';
         } else {
-            this.setText(this._errors, '');
+            this.errors = '';
         }
+    }
+
+    protected handleSubmit(event: Event) {
+        event.preventDefault();
+        this.onSubmit?.();
     }
 
     get values(): Partial<IOrderForm> {
@@ -44,4 +44,6 @@ export class ContactsForm extends Component<IOrderForm> {
             phone: this._phoneInput.value
         };
     }
+
+    onSubmit?: () => void;
 }
